@@ -51,5 +51,8 @@
     <ClCompile Include="CommandLineInput.ixx">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="Enum.ixx">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

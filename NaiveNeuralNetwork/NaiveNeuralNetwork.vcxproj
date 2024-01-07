@@ -135,6 +135,7 @@
     <ClCompile Include="ActivationFunctions.ixx" />
     <ClCompile Include="ArgParsing.ixx" />
     <ClCompile Include="CostFunctions.ixx" />
+    <ClCompile Include="Enum.ixx" />
     <ClCompile Include="Hyperparameters.ixx" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Matrix.ixx" />

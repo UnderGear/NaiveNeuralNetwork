@@ -3,12 +3,12 @@
 export module CommandLineInput;
 
 import ArgParsing;
+import Enum;
 
 export namespace CommandLineInput
 {
 	struct CommandLineParams
 	{
-		//TODO: write some helpers for flagged enums
 		enum class RunFlags : std::uint8_t
 		{
 			Predict = 0b0001,
@@ -69,8 +69,8 @@ export namespace CommandLineInput
 		{
 			{ "-p"sv, CommandLineParams::RunFlags::Predict },
 			{ "-t"sv, CommandLineParams::RunFlags::Train },
-			{ "-pt"sv, static_cast<CommandLineParams::RunFlags>(static_cast<std::uint8_t>(CommandLineParams::RunFlags::Predict) | static_cast<std::uint8_t>(CommandLineParams::RunFlags::Train)) },
-			{ "-tp"sv, static_cast<CommandLineParams::RunFlags>(static_cast<std::uint8_t>(CommandLineParams::RunFlags::Predict) | static_cast<std::uint8_t>(CommandLineParams::RunFlags::Train)) }
+			{ "-pt"sv, Enum::AppendFlags(CommandLineParams::RunFlags::Predict, CommandLineParams::RunFlags::Train) },
+			{ "-tp"sv, Enum::AppendFlags(CommandLineParams::RunFlags::Predict, CommandLineParams::RunFlags::Train) },
 		}, & CommandLineParams::RunConfig);
 		Parser.AddRule({ "-tr"sv }, &CommandLineParams::LearningRate);
 		Parser.AddRule({ "-te"sv }, &CommandLineParams::ErrorTolerance);
