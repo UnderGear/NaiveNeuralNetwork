@@ -13,7 +13,12 @@ import Validation;
 
 namespace ModelTraining
 {
-	std::vector<float> Train(const Hyperparameters& Hypers, Model& Parameters, const Matrix& Inputs, const Matrix& ExpectedOutputs)
+	std::vector<float> Train(
+		const TrainingParameters& TrainingParams,
+		const Hyperparameters& Hypers,
+		Model& Parameters,
+		const Matrix& Inputs,
+		const Matrix& ExpectedOutputs)
 	{
 		auto State{ ModelEvaluation::EvaluateModel(Hypers, Parameters, Inputs) };
 
@@ -31,22 +36,22 @@ namespace ModelTraining
 		}
 
 		std::vector<Matrix> NeuronErrors;
-		NeuronErrors.reserve(Hypers.Depth);
-		for (auto i{ 0 }; i < Hypers.Depth; ++i)
+		NeuronErrors.reserve(Hypers.GetDepth());
+		for (auto i{ 0 }; i < Hypers.GetDepth(); ++i)
 		{
 			auto& Comparable{ State.ActivationResults[i] };
 			NeuronErrors.emplace_back(Comparable.Width, Comparable.Height);
 		}
 
 		// Back propagation
-		for (auto LayerIndex{ Hypers.Depth - 1 }; LayerIndex >= 0; --LayerIndex)
+		for (auto LayerIndex{ Hypers.GetDepth() - 1 }; LayerIndex >= 0; --LayerIndex)
 		{
 			auto& LayerActivations{ State.ActivationResults[LayerIndex] };
 			auto& LayerLinearCombinations{ State.LinearCombinations[LayerIndex] };
 			auto& LayerInputs{ State.LayerInputs[LayerIndex] };
 			auto& LayerParams{ Parameters[LayerIndex] };
 			auto& ActivationFamily{ Hypers.ActivationFamilies[LayerIndex] };
-			auto IsOutputLayer{ LayerIndex == (Hypers.Depth - 1) };
+			auto IsOutputLayer{ LayerIndex == (Hypers.GetDepth() - 1) };
 
 			for (auto NeuronIndex{ 0 }; NeuronIndex < LayerActivations.Size(); ++NeuronIndex)
 			{
@@ -100,7 +105,7 @@ namespace ModelTraining
 					auto& Weight{ LayerParams[WeightIndex] };
 
 					// Adjust our weight with gradient descent
-					Weight -= Hypers.LearningRate * NeuronError * LayerInputs[InputIndex];
+					Weight -= TrainingParams.LearningRate * NeuronError * LayerInputs[InputIndex];
 
 					CheckValid(Weight);
 				}
@@ -110,14 +115,18 @@ namespace ModelTraining
 		return Errors;
 	}
 
-	export std::vector<std::vector<std::vector<float>>> TrainModel(const Hyperparameters& Hypers, Model& Parameters, const TrainingData::TrainingSet& TrainingSet)
+	export std::vector<std::vector<std::vector<float>>> TrainModel(
+		const TrainingParameters& TrainingParams,
+		const Hyperparameters& Hypers,
+		Model& Parameters,
+		const TrainingData::TrainingSet& TrainingSet)
 	{
 		std::cout << "Training starting with set " << TrainingSet.Name << std::endl;
 
-		std::vector<std::vector<std::vector<float>>> ErrorsPerIteration(Hypers.MaxIterations);
+		std::vector<std::vector<std::vector<float>>> ErrorsPerIteration(TrainingParams.MaxIterations);
 
 		// Do up to MaxIterations of training across our training data
-		for (auto Iterations{ 0 }; Iterations < Hypers.MaxIterations; ++Iterations)
+		for (auto Iterations{ 0 }; Iterations < TrainingParams.MaxIterations; ++Iterations)
 		{
 			auto& ErrorsThisIteration{ ErrorsPerIteration[Iterations] };
 			ErrorsThisIteration.reserve(TrainingSet.Input.size());
@@ -129,14 +138,14 @@ namespace ModelTraining
 				const auto& [Inputs, ExpectedOutputs] { TrainingSet.Input[TrialIndex] };
 
 				// Actually call Train on the model
-				auto TrainingResult{ Train(Hypers, Parameters, Inputs, ExpectedOutputs) };
+				auto TrainingResult{ Train(TrainingParams, Hypers, Parameters, Inputs, ExpectedOutputs) };
 
 				ErrorsThisIteration.push_back(std::move(TrainingResult));
 
 				// Keep track of our error vs our tolerance. If we're within bounds for all entries in the training set, we're done.
 				AllPassed &= std::ranges::none_of(ErrorsThisIteration[TrialIndex], [&](float Error)
 				{
-					return std::abs(Error) > Hypers.ErrorTolerance;
+					return std::abs(Error) > TrainingParams.ErrorTolerance;
 				});
 			}
 

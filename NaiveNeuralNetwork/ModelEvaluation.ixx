@@ -19,15 +19,15 @@ export namespace ModelEvaluation
 
 		EvaluationResult(const Hyperparameters& Hypers, const Matrix& Inputs)
 		{
-			LinearCombinations.resize(Hypers.Depth);
-			ActivationResults.reserve(Hypers.Depth);
-			LayerInputs.reserve(Hypers.Depth);
+			LinearCombinations.resize(Hypers.GetDepth());
+			ActivationResults.reserve(Hypers.GetDepth());
+			LayerInputs.reserve(Hypers.GetDepth());
 
-			for (auto i{ 0 }; i < Hypers.Depth; ++i)
+			for (auto i{ 0 }; i < Hypers.GetDepth(); ++i)
 			{
 				// Note that i here is an index into NeuronsPerLayer, which includes the input.
 				// Other indexing has the first hidden layer as 0 and excludes the input
-				auto IncomingCount{ Hypers.NeuronsPerLayer[i] + Hypers.BiasCountPerLayer };
+				auto IncomingCount{ Hypers.NeuronsPerLayer[i] + Model::BiasCountPerLayer };
 				auto NeuronCount{ Hypers.NeuronsPerLayer[i + 1] };
 
 				LayerInputs.emplace_back(IncomingCount, 1);
@@ -37,7 +37,7 @@ export namespace ModelEvaluation
 			// All inputs begin with a Bias value
 			for (auto& LayerInput : LayerInputs)
 			{
-				LayerInput.Data.front() = Hypers.Bias;
+				LayerInput.Data.front() = Model::Bias;
 			}
 
 			// Set the input into our first layer input
@@ -51,7 +51,7 @@ export namespace ModelEvaluation
 	{
 		EvaluationResult Result{ Hypers, Inputs };
 
-		for (auto LayerIndex{ 0 }; LayerIndex < Hypers.Depth; ++LayerIndex)
+		for (auto LayerIndex{ 0 }; LayerIndex < Hypers.GetDepth(); ++LayerIndex)
 		{
 			// Linear combination for all neuron inputs and weights in the layer
 			auto& OutputLinearCombinations{ Result.LinearCombinations[LayerIndex] };
@@ -69,7 +69,7 @@ export namespace ModelEvaluation
 
 			// copying activation function values over to the input for next layer (unless we're on the output layer)
 			//TODO: can I just do this sort of thing in place instead?
-			if (LayerIndex + 1 < Hypers.Depth)
+			if (LayerIndex + 1 < Hypers.GetDepth())
 			{
 				auto FirstNonBiasIter{ std::ranges::next(Result.LayerInputs[LayerIndex + 1].Data.begin(), 1) };
 				std::ranges::copy(Results.Data.begin(), Results.Data.end(), FirstNonBiasIter);

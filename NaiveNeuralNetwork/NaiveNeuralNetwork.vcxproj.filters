@@ -45,5 +45,11 @@
     <ClCompile Include="Validation.ixx">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="ArgParsing.ixx">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandLineInput.ixx">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

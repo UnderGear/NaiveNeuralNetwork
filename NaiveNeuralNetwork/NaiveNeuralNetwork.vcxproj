@@ -133,6 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ActivationFunctions.ixx" />
+    <ClCompile Include="ArgParsing.ixx" />
     <ClCompile Include="CostFunctions.ixx" />
     <ClCompile Include="Hyperparameters.ixx" />
     <ClCompile Include="main.cpp" />
@@ -140,6 +141,7 @@
     <ClCompile Include="Model.ixx" />
     <ClCompile Include="ModelEvaluation.ixx" />
     <ClCompile Include="ModelTraining.ixx" />
+    <ClCompile Include="CommandLineInput.ixx" />
     <ClCompile Include="TrainingData.ixx" />
     <ClCompile Include="Validation.ixx" />
   </ItemGroup>

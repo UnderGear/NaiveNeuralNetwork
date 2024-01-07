@@ -46,5 +46,11 @@ namespace CostFunctions
 		{
 			&SquaredError, &SquaredErrorPrime
 		};
+
+		using namespace std::literals;
+		const inline std::unordered_map<std::string_view, const CostFamily*> FamiliesByName
+		{
+			{ "se"sv, &SquaredErrorFamily },
+		};
 	}
 }

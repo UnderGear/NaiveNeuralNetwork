@@ -18,16 +18,19 @@ void InitializeRandomWeights(std::span<float> Weights)
 
 export struct Model
 {
+	static constexpr float Bias{ 1.f };
+	static constexpr int BiasCountPerLayer{ 1 };
+
 	std::vector<Matrix> Parameters;
 
 	Model(const Hyperparameters& Hypers)
 	{
-		Parameters.reserve(Hypers.Depth);
-		for (auto i{ 0 }; i < Hypers.Depth; ++i)
+		Parameters.reserve(Hypers.GetDepth());
+		for (auto i{ 0 }; i < Hypers.GetDepth(); ++i)
 		{
 			// Note that i here is an index into NeuronsPerLayer, which includes the input.
 			// Other indexing has the first hidden layer as 0 and excludes the input
-			auto IncomingCount{ Hypers.NeuronsPerLayer[i] + Hypers.BiasCountPerLayer };
+			auto IncomingCount{ Hypers.NeuronsPerLayer[i] + BiasCountPerLayer };
 			auto NeuronCount{ Hypers.NeuronsPerLayer[i + 1] };
 
 			std::vector<float> InputWeights(IncomingCount * NeuronCount);

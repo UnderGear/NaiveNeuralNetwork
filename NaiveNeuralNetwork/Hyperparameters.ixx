@@ -4,21 +4,22 @@ import std.core;
 import ActivationFunctions;
 import CostFunctions;
 
-export struct Hyperparameters
+export struct TrainingParameters
 {
 	// some people recommend starting with a large learning rate (like 1) and reducing it over training iterations
 	// others suggest having it be a smaller value, but it may take a lot of iterations to converge
 	float LearningRate{ .01f };
 	float ErrorTolerance{ .00001f };
 	int MaxIterations{ 1000 };
+};
 
-	float Bias{ 1.f };
-	int BiasCountPerLayer{ 1 };
-
+export struct Hyperparameters
+{
 	std::vector<int> NeuronsPerLayer{ 2, 5, 1 }; // input, hidden layers..., output
-	int Depth{ static_cast<int>(NeuronsPerLayer.size()) - 1 }; // Input layer doesn't count here
-	int InputCount{ NeuronsPerLayer.front() };
-	int OutputCount{ NeuronsPerLayer.back() };
+
+	int GetDepth() const { return static_cast<int>(NeuronsPerLayer.size()) - 1; } // Input layer doesn't count here
+	int GetInputCount() const { return NeuronsPerLayer.front(); }
+	int GetOutputCount() const { return NeuronsPerLayer.back(); }
 
 	// Activation function (and its derivative) to use on each layer after the input layer
 	std::vector<ActivationFunctions::ActivationFamily> ActivationFamilies
