@@ -30,7 +30,7 @@ export namespace CommandLineInput
 		// -la <name...>
 		std::vector<std::string_view> ActivationFamilies;
 		// -c <name>
-		std::vector<std::string_view> CostFamily;
+		std::optional<std::string_view> CostFamily;
 		// -tr <float>
 		std::optional<float> LearningRate;
 		// -te <float>

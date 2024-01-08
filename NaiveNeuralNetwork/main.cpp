@@ -1,7 +1,7 @@
 import std.core;
 
 import CommandLineInput;
-import Hyperparameters;
+import Enum;
 import Matrix;
 import Model;
 import ModelEvaluation;
@@ -11,35 +11,44 @@ import TrainingData;
 int main(int argc, const char* argv[])
 {
 	auto CommandLineParams{ CommandLineInput::ParseCommandLine(argc, argv) };
-	//TODO: now actually use it.
 
-	//TODO: based on the user params, either override its values with set optionals (training a new model)
-	// or load a model file that should contain them
-	Hyperparameters Hypers;
-	TrainingParameters TrainingParams;
-
-	//TODO: option for training a new model or loading an existing one from a file
 	//TODO: save/load neural network data - dimensions, activation functions, weights, etc
-	Model Parameters{ Hypers };
+	Model Parameters{ InitializeModel(CommandLineParams) };
 
-	//TODO: read training data from a file
-	auto Errors{ ModelTraining::TrainModel(TrainingParams, Hypers, Parameters, TrainingData::XOR) };
-
-	// Plug in user inputs, evaluate the model, print what it spits out the other end
-	Matrix Inputs{ Hypers.GetInputCount(), 1 };
-	while (true)
+	if (Enum::ContainsFlag(CommandLineParams.RunConfig, CommandLineInput::CommandLineParams::RunFlags::Train))
 	{
-		for (auto InputIndex{ 0 }; InputIndex < Hypers.GetInputCount(); ++InputIndex)
+		auto TrainingParams{ ModelTraining::GetTrainingParameters(CommandLineParams) };
+		
+		//TODO: read training data from a file
+		auto TrainingResults{ ModelTraining::TrainModel(TrainingParams, Parameters, TrainingData::XOR) };
+		if (TrainingResults.Success == false)
 		{
-			std::cout << "Input " << InputIndex << ": ";
-			std::cin >> Inputs[InputIndex];
+			std::cout << "training failed" << std::endl;
+			throw std::exception{ "Training failed" };
 		}
 
-		auto State{ ModelEvaluation::EvaluateModel(Hypers, Parameters, Inputs) };
+		//TODO: if there's an out model file, write to it.
+	}
 
-		for (auto OutputIndex{ 0 }; OutputIndex < Hypers.GetOutputCount(); ++OutputIndex)
+	//TODO: make a separate predict vs interactive mode? predict can handle command line inputs and interactive can be this?
+	if (Enum::ContainsFlag(CommandLineParams.RunConfig, CommandLineInput::CommandLineParams::RunFlags::Predict))
+	{
+		// Plug in user inputs, evaluate the model, print what it spits out the other end
+		Matrix Inputs{ Parameters.GetInputCount(), 1 };
+		while (true)
 		{
-			std::cout << "Output" << OutputIndex << ": " << State.ActivationResults.back()[OutputIndex] << std::endl;
+			for (auto InputIndex{ 0 }; InputIndex < Parameters.GetInputCount(); ++InputIndex)
+			{
+				std::cout << "Input " << InputIndex << ": ";
+				std::cin >> Inputs[InputIndex];
+			}
+
+			auto State{ ModelEvaluation::EvaluateModel(Parameters, Inputs) };
+
+			for (auto OutputIndex{ 0 }; OutputIndex < Parameters.GetOutputCount(); ++OutputIndex)
+			{
+				std::cout << "Output" << OutputIndex << ": " << State.ActivationResults.back()[OutputIndex] << std::endl;
+			}
 		}
 	}
 }

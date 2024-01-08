@@ -125,5 +125,17 @@ namespace ActivationFunctions
 		{
 			&Identity, &IdentityPrime
 		};
+
+		using namespace std::literals;
+		const inline std::unordered_map<std::string_view, const ActivationFamily*> FamiliesByName
+		{
+			{ "sigmoid"sv, &SigmoidFamily },
+			{ "relu"sv, &ReLUFamily },
+			{ "lrelu"sv, &LeakyReLUFamily },
+			{ "tanh"sv, &TanHFamily },
+			{ "soft+"sv, &SoftPlusFamily },
+			{ "swish"sv, &SwishFamily },
+			{ "id"sv, &IdentityFamily },
+		};
 	}
 }

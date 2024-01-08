@@ -17,10 +17,6 @@ export struct Hyperparameters
 {
 	std::vector<int> NeuronsPerLayer{ 2, 5, 1 }; // input, hidden layers..., output
 
-	int GetDepth() const { return static_cast<int>(NeuronsPerLayer.size()) - 1; } // Input layer doesn't count here
-	int GetInputCount() const { return NeuronsPerLayer.front(); }
-	int GetOutputCount() const { return NeuronsPerLayer.back(); }
-
 	// Activation function (and its derivative) to use on each layer after the input layer
 	std::vector<ActivationFunctions::ActivationFamily> ActivationFamilies
 	{

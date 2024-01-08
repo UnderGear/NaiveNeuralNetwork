@@ -3,6 +3,7 @@ export module ModelTraining;
 import std.core;
 
 import ActivationFunctions;
+import CommandLineInput;
 import CostFunctions;
 import Hyperparameters;
 import Matrix;
@@ -13,14 +14,31 @@ import Validation;
 
 namespace ModelTraining
 {
+	export TrainingParameters GetTrainingParameters(const CommandLineInput::CommandLineParams& CommandLine)
+	{
+		TrainingParameters Params;
+		if (CommandLine.LearningRate.has_value())
+		{
+			Params.LearningRate = *CommandLine.LearningRate;
+		}
+		if (CommandLine.ErrorTolerance.has_value())
+		{
+			Params.ErrorTolerance = *CommandLine.ErrorTolerance;
+		}
+		if (CommandLine.MaxIterations.has_value())
+		{
+			Params.MaxIterations = *CommandLine.MaxIterations;
+		}
+		return Params;
+	}
+
 	std::vector<float> Train(
 		const TrainingParameters& TrainingParams,
-		const Hyperparameters& Hypers,
 		Model& Parameters,
 		const Matrix& Inputs,
 		const Matrix& ExpectedOutputs)
 	{
-		auto State{ ModelEvaluation::EvaluateModel(Hypers, Parameters, Inputs) };
+		auto State{ ModelEvaluation::EvaluateModel(Parameters, Inputs) };
 
 		// Calculate error on each output node's activation value
 		std::vector<float> Errors;
@@ -28,7 +46,7 @@ namespace ModelTraining
 		for (auto i{ 0 }; i < Errors.size(); ++i)
 		{
 			// Apply the cost function to our activation results to see how far off we are
-			Errors[i] = Hypers.CostFamily.Function(ExpectedOutputs[i], State.ActivationResults.back()[i]);
+			Errors[i] = Parameters.Hypers.CostFamily.Function(ExpectedOutputs[i], State.ActivationResults.back()[i]);
 
 			// 		std::cout << "Output: " << State.ActivationResults.back()[i] << std::endl;
 			// 		std::cout << "Expected: " << ExpectedOutputs[i] << std::endl;
@@ -36,22 +54,22 @@ namespace ModelTraining
 		}
 
 		std::vector<Matrix> NeuronErrors;
-		NeuronErrors.reserve(Hypers.GetDepth());
-		for (auto i{ 0 }; i < Hypers.GetDepth(); ++i)
+		NeuronErrors.reserve(Parameters.GetDepth());
+		for (auto i{ 0 }; i < Parameters.GetDepth(); ++i)
 		{
 			auto& Comparable{ State.ActivationResults[i] };
 			NeuronErrors.emplace_back(Comparable.Width, Comparable.Height);
 		}
 
 		// Back propagation
-		for (auto LayerIndex{ Hypers.GetDepth() - 1 }; LayerIndex >= 0; --LayerIndex)
+		for (auto LayerIndex{ Parameters.GetDepth() - 1 }; LayerIndex >= 0; --LayerIndex)
 		{
 			auto& LayerActivations{ State.ActivationResults[LayerIndex] };
 			auto& LayerLinearCombinations{ State.LinearCombinations[LayerIndex] };
 			auto& LayerInputs{ State.LayerInputs[LayerIndex] };
 			auto& LayerParams{ Parameters[LayerIndex] };
-			auto& ActivationFamily{ Hypers.ActivationFamilies[LayerIndex] };
-			auto IsOutputLayer{ LayerIndex == (Hypers.GetDepth() - 1) };
+			auto& ActivationFamily{ Parameters.Hypers.ActivationFamilies[LayerIndex] };
+			auto IsOutputLayer{ LayerIndex == (Parameters.GetDepth() - 1) };
 
 			for (auto NeuronIndex{ 0 }; NeuronIndex < LayerActivations.Size(); ++NeuronIndex)
 			{
@@ -60,7 +78,7 @@ namespace ModelTraining
 				if (IsOutputLayer)
 				{
 					// Activation error attribution for output neurons is the derivative of our cost function
-					ActivationError = Hypers.CostFamily.DerivativeFunction(ExpectedOutputs[NeuronIndex], LayerActivations[NeuronIndex]);
+					ActivationError = Parameters.Hypers.CostFamily.DerivativeFunction(ExpectedOutputs[NeuronIndex], LayerActivations[NeuronIndex]);
 
 					CheckValid(ActivationError);
 				}
@@ -99,7 +117,7 @@ namespace ModelTraining
 					// dE/Wi = dE/dActivation * dActivation/dLinearCombination * dLinearCombination/dWi
 
 					// Now to update a weight going to the target neuron
-					// Wi -= Hypers.LearningRate * dE/Wi
+					// Wi -= Parameters.Hypers.LearningRate * dE/Wi
 
 					auto WeightIndex{ LayerParams.GetIndex(InputIndex, NeuronIndex) };
 					auto& Weight{ LayerParams[WeightIndex] };
@@ -115,15 +133,22 @@ namespace ModelTraining
 		return Errors;
 	}
 
-	export std::vector<std::vector<std::vector<float>>> TrainModel(
+	struct TrainingResults
+	{
+		std::vector<std::vector<std::vector<float>>> ErrorsPerIteration;
+		bool Success{ false };
+	};
+
+	//TODO: maybe it's time to make this into an actual struct, like TrainingResults...
+	export TrainingResults TrainModel(
 		const TrainingParameters& TrainingParams,
-		const Hyperparameters& Hypers,
 		Model& Parameters,
 		const TrainingData::TrainingSet& TrainingSet)
 	{
 		std::cout << "Training starting with set " << TrainingSet.Name << std::endl;
 
 		std::vector<std::vector<std::vector<float>>> ErrorsPerIteration(TrainingParams.MaxIterations);
+		bool Success{ false };
 
 		// Do up to MaxIterations of training across our training data
 		for (auto Iterations{ 0 }; Iterations < TrainingParams.MaxIterations; ++Iterations)
@@ -138,7 +163,7 @@ namespace ModelTraining
 				const auto& [Inputs, ExpectedOutputs] { TrainingSet.Input[TrialIndex] };
 
 				// Actually call Train on the model
-				auto TrainingResult{ Train(TrainingParams, Hypers, Parameters, Inputs, ExpectedOutputs) };
+				auto TrainingResult{ Train(TrainingParams, Parameters, Inputs, ExpectedOutputs) };
 
 				ErrorsThisIteration.push_back(std::move(TrainingResult));
 
@@ -151,12 +176,13 @@ namespace ModelTraining
 
 			if (AllPassed)
 			{
+				Success = true;
 				std::cout << "Within error threshold - ";
 				break;
 			}
 		}
 
 		std::cout << "Training finished" << std::endl;
-		return ErrorsPerIteration;
+		return { std::move(ErrorsPerIteration), Success };
 	}
 }
