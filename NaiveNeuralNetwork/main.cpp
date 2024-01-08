@@ -6,14 +6,14 @@ import Matrix;
 import Model;
 import ModelEvaluation;
 import ModelTraining;
+import Serialization;
 import TrainingData;
 
 int main(int argc, const char* argv[])
 {
 	auto CommandLineParams{ CommandLineInput::ParseCommandLine(argc, argv) };
 
-	//TODO: save/load neural network data - dimensions, activation functions, weights, etc
-	Model Parameters{ InitializeModel(CommandLineParams) };
+	Model Parameters{ Serialization::InitializeModel(CommandLineParams) };
 
 	if (Enum::ContainsFlag(CommandLineParams.RunConfig, CommandLineInput::CommandLineParams::RunFlags::Train))
 	{
@@ -23,11 +23,14 @@ int main(int argc, const char* argv[])
 		auto TrainingResults{ ModelTraining::TrainModel(TrainingParams, Parameters, TrainingData::XOR) };
 		if (TrainingResults.Success == false)
 		{
-			std::cout << "training failed" << std::endl;
 			throw std::exception{ "Training failed" };
 		}
 
-		//TODO: if there's an out model file, write to it.
+		// Save out the model if necessary
+		if (CommandLineParams.OutputModelPath.has_value())
+		{
+			Serialization::WriteModel(*CommandLineParams.OutputModelPath, Parameters);
+		}
 	}
 
 	//TODO: make a separate predict vs interactive mode? predict can handle command line inputs and interactive can be this?

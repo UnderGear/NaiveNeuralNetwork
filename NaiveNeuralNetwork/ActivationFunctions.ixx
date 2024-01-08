@@ -85,48 +85,56 @@ namespace ActivationFunctions
 
 	export
 	{
+		using namespace std::literals;
 		struct ActivationFamily
 		{
 			std::function<float(float)> Function;
 			std::function<float(float)> DerivativeFunction;
+			std::string_view FamilyName;
 		};
 
 		inline const ActivationFamily SigmoidFamily
 		{
-			&Sigmoid, &SigmoidPrime
+			&Sigmoid, &SigmoidPrime,
+			"sigmoid"sv
 		};
 
 		inline const ActivationFamily ReLUFamily
 		{
-			&ReLU, &ReLUPrime
+			&ReLU,& ReLUPrime,
+			"relu"sv
 		};
 
 		inline const ActivationFamily LeakyReLUFamily
 		{
-			&LeakyReLU, &LeakyReLUPrime
+			&LeakyReLU,& LeakyReLUPrime,
+			"lrelu"sv
 		};
 
 		inline const ActivationFamily TanHFamily
 		{
-			&TanH, &TanHPrime
+			&TanH,& TanHPrime,
+			"tanh"sv
 		};
 
 		inline const ActivationFamily SoftPlusFamily
 		{
-			&SoftPlus, &SoftPlusPrime
+			&SoftPlus,& SoftPlusPrime,
+			"soft+"sv
 		};
 
 		inline const ActivationFamily SwishFamily
 		{
-			&Swish, &SwishPrime
+			&Swish,& SwishPrime,
+			"swish"sv
 		};
 
 		inline const ActivationFamily IdentityFamily
 		{
-			&Identity, &IdentityPrime
+			&Identity,& IdentityPrime,
+			"id"sv
 		};
 
-		using namespace std::literals;
 		const inline std::unordered_map<std::string_view, const ActivationFamily*> FamiliesByName
 		{
 			{ "sigmoid"sv, &SigmoidFamily },

@@ -54,5 +54,8 @@
     <ClCompile Include="Enum.ixx">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="Serialization.ixx">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

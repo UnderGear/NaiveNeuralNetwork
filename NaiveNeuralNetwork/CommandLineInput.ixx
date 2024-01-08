@@ -47,6 +47,7 @@ export namespace CommandLineInput
 
 		// Optional if not training
 
+		//TODO: let's actually build this out and use it
 		void Validate() const
 		{
 			// if training

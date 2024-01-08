@@ -143,6 +143,7 @@
     <ClCompile Include="ModelEvaluation.ixx" />
     <ClCompile Include="ModelTraining.ixx" />
     <ClCompile Include="CommandLineInput.ixx" />
+    <ClCompile Include="Serialization.ixx" />
     <ClCompile Include="TrainingData.ixx" />
     <ClCompile Include="Validation.ixx" />
   </ItemGroup>

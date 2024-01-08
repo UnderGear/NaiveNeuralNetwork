@@ -36,18 +36,20 @@ namespace CostFunctions
 
 	export
 	{
+		using namespace std::literals;
 		struct CostFamily
 		{
 			std::function<float(float, float)> Function;
 			std::function<float(float, float)> DerivativeFunction;
+			std::string_view FamilyName;
 		};
 
 		const inline CostFamily SquaredErrorFamily
 		{
-			&SquaredError, &SquaredErrorPrime
+			&SquaredError, &SquaredErrorPrime,
+			"se"sv
 		};
 
-		using namespace std::literals;
 		const inline std::unordered_map<std::string_view, const CostFamily*> FamiliesByName
 		{
 			{ "se"sv, &SquaredErrorFamily },
