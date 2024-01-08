@@ -26,11 +26,11 @@ export namespace CommandLineInput
 		// Optional if training (will use default values if unspecified)
 		//TODO: make these next 3 into optional vectors
 		// -ld <int...>
-		std::optional<std::string_view> NeuronsPerLayer;
+		std::vector<int> NeuronsPerLayer;
 		// -la <name...>
-		std::optional<std::string_view> ActivationFamilies;
+		std::vector<std::string_view> ActivationFamilies;
 		// -c <name>
-		std::optional<std::string_view> CostFamily;
+		std::vector<std::string_view> CostFamily;
 		// -tr <float>
 		std::optional<float> LearningRate;
 		// -te <float>
@@ -71,7 +71,7 @@ export namespace CommandLineInput
 			{ "-t"sv, CommandLineParams::RunFlags::Train },
 			{ "-pt"sv, Enum::AppendFlags(CommandLineParams::RunFlags::Predict, CommandLineParams::RunFlags::Train) },
 			{ "-tp"sv, Enum::AppendFlags(CommandLineParams::RunFlags::Predict, CommandLineParams::RunFlags::Train) },
-		}, & CommandLineParams::RunConfig);
+		}, &CommandLineParams::RunConfig);
 		Parser.AddRule({ "-tr"sv }, &CommandLineParams::LearningRate);
 		Parser.AddRule({ "-te"sv }, &CommandLineParams::ErrorTolerance);
 		Parser.AddRule({ "-tm"sv }, &CommandLineParams::MaxIterations);
