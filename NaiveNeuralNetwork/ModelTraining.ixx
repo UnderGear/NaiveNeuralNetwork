@@ -48,9 +48,9 @@ namespace ModelTraining
 			// Apply the cost function to our activation results to see how far off we are
 			Errors[i] = Parameters.Hypers.CostFamily.Function(ExpectedOutputs[i], State.ActivationResults.back()[i]);
 
-			// 		std::cout << "Output: " << State.ActivationResults.back()[i] << std::endl;
-			// 		std::cout << "Expected: " << ExpectedOutputs[i] << std::endl;
-			//		std::cout << "Error: " << Errors[i] << std::endl;
+// 	 		std::cout << "Output: " << State.ActivationResults.back()[i] << std::endl;
+// 	 		std::cout << "Expected: " << ExpectedOutputs[i] << std::endl;
+// 			std::cout << "Error: " << Errors[i] << std::endl;
 		}
 
 		std::vector<Matrix> NeuronErrors;
@@ -139,7 +139,6 @@ namespace ModelTraining
 		bool Success{ false };
 	};
 
-	//TODO: maybe it's time to make this into an actual struct, like TrainingResults...
 	export TrainingResults TrainModel(
 		const TrainingParameters& TrainingParams,
 		Model& Parameters,

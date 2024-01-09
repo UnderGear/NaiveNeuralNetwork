@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-pt -tr 0.01 -te 0.00001 -tm 1000 -td Training.dat -mo Model.dat -ld 2,5,1 -la lrelu,lrelu -c se</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-pt -tr 0.01 -te 0.00001 -tm 1000 -td XOR.dat -mo Model.dat -ld 2,5,1 -la lrelu,lrelu -c se</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

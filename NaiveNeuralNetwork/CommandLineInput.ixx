@@ -1,6 +1,6 @@
-#include <filesystem>
-
 export module CommandLineInput;
+
+import std.filesystem;
 
 import ArgParsing;
 import Enum;

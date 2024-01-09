@@ -1,8 +1,7 @@
-#include <filesystem>
-
 export module Serialization;
 
 import std.core;
+import std.filesystem;
 
 import ActivationFunctions;
 import CommandLineInput;
@@ -10,6 +9,7 @@ import CostFunctions;
 import Hyperparameters;
 import Matrix;
 import Model;
+import TrainingData;
 
 export namespace Serialization
 {
@@ -128,5 +128,53 @@ export namespace Serialization
 
 			return { std::move(Hypers) };
 		}
+	}
+
+	TrainingData::TrainingSet LoadTrainingSet(std::filesystem::path Path)
+	{
+		std::ifstream InputFile{ Path, std::ios::binary };
+
+		int SampleCount;
+		int InputWidth;
+		int InputHeight;
+		int OutputWidth;
+		int OutputHeight;
+
+		InputFile.read(reinterpret_cast<char*>(&SampleCount), sizeof(SampleCount));
+		InputFile.read(reinterpret_cast<char*>(&InputWidth), sizeof(InputWidth));
+		InputFile.read(reinterpret_cast<char*>(&InputHeight), sizeof(InputHeight));
+		InputFile.read(reinterpret_cast<char*>(&OutputWidth), sizeof(OutputWidth));
+		InputFile.read(reinterpret_cast<char*>(&OutputHeight), sizeof(OutputHeight));
+
+		TrainingData::TrainingInput Data(SampleCount);
+
+		auto InputSize{ InputWidth * InputHeight };
+		auto OutputSize{ OutputWidth * OutputHeight };
+		for (auto& [Inputs, Outputs] : Data)
+		{
+			Inputs.Width = InputWidth;
+			Inputs.Height = InputHeight;
+			Inputs.Data.resize(InputSize);
+			InputFile.read(reinterpret_cast<char*>(Inputs.Data.data()), InputSize * sizeof(float));
+
+			Outputs.Width = OutputWidth;
+			Outputs.Height = OutputHeight;
+			Outputs.Data.resize(OutputSize);
+			InputFile.read(reinterpret_cast<char*>(Outputs.Data.data()), OutputSize * sizeof(float));
+		}
+
+		int NameLength;
+		InputFile.read(reinterpret_cast<char*>(&NameLength), sizeof(NameLength));
+		std::string Name;
+		Name.resize(NameLength);
+		InputFile.read(Name.data(), NameLength);
+
+		TrainingData::TrainingSet Set
+		{
+			std::move(Data),
+			Name
+		};
+
+		return Set;
 	}
 }

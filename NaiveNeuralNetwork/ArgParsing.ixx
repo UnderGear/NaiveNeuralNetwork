@@ -1,8 +1,7 @@
-#include <filesystem>
-
 export module ArgParsing;
 
 import std.core;
+import std.filesystem;
 
 namespace ArgParsing
 {

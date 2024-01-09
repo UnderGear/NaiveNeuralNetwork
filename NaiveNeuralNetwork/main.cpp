@@ -19,17 +19,27 @@ int main(int argc, const char* argv[])
 	{
 		auto TrainingParams{ ModelTraining::GetTrainingParameters(CommandLineParams) };
 		
-		//TODO: read training data from a file
-		auto TrainingResults{ ModelTraining::TrainModel(TrainingParams, Parameters, TrainingData::XOR) };
-		if (TrainingResults.Success == false)
+		if (CommandLineParams.TrainingDataPath.has_value())
 		{
-			throw std::exception{ "Training failed" };
-		}
+			// Read the training set from the file
+			auto TrainingSet{ Serialization::LoadTrainingSet(*CommandLineParams.TrainingDataPath) };
+			// Now train the model
+			auto TrainingResults{ ModelTraining::TrainModel(TrainingParams, Parameters, TrainingSet) };
 
-		// Save out the model if necessary
-		if (CommandLineParams.OutputModelPath.has_value())
+			if (TrainingResults.Success == false)
+			{
+				throw std::exception{ "Training failed" };
+			}
+
+			// Save out the model if necessary
+			if (CommandLineParams.OutputModelPath.has_value())
+			{
+				Serialization::WriteModel(*CommandLineParams.OutputModelPath, Parameters);
+			}
+		}
+		else
 		{
-			Serialization::WriteModel(*CommandLineParams.OutputModelPath, Parameters);
+			throw std::invalid_argument{ "Training requires a training dataset" };
 		}
 	}
 
